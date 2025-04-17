@@ -7,17 +7,33 @@ import ru.yandex.practicum.catsgram.exception.NotFoundException;
 import ru.yandex.practicum.catsgram.model.User;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class UserService {
 
     private final Map<Long, User> users = new HashMap<>();
 
-    public Collection<User> findAll() {
-        return users.values();
+    public Collection<User> findAll(Long size, Long from, String sort) {
+        if(!(size > 0)) {
+            throw new ConditionsNotMetException("Размер должен быть больше нуля");
+        }
+
+        Comparator<User> dateComparator;
+
+        if(Objects.equals(sort, "asc")) {
+            dateComparator = Comparator.comparing(User::getRegistrationDate);
+        } else if(Objects.equals(sort, "desc")) {
+            dateComparator = Comparator.comparing(User::getRegistrationDate).reversed();
+        } else {
+            throw new ConditionsNotMetException("Неверный метод сортировки. Допустимые значения: asc, desc");
+        }
+
+        return users.values().stream()
+                .sorted(dateComparator)
+                .skip(from)
+                .limit(size)
+                .toList();
     }
 
     public User find (Long userId) {

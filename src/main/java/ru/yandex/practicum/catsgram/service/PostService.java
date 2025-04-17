@@ -12,19 +12,20 @@ import java.util.*;
 public class PostService {
     private final Map<Long, Post> posts = new HashMap<>();
 
-    public Collection<Post> findAll( int size,  int from, String sort) {
-        if(sort == "acd"){
-            Comparator<Post> dateComporator = Comparator.comparing((Post::getPostDate));
-        } else if(sort == "desc"){
-            Comparator<Post> dateComporator = Comparator.comparing((Post::getPostDate)).reversed();
-        } else {
-            throw new ConditionsNotMetException("Неверный метод сортировки");
+    public Collection<Post> findAll( Long size,  Long from, String sort) {
+        if(!(size > 0)) {
+            throw new ConditionsNotMetException("Размер должен быть больше нуля");
         }
+        Comparator<Post> dateComparator;
 
-
-
-
-        return posts.values();
+        if(Objects.equals(sort, "asc")){
+            dateComparator = Comparator.comparing((Post::getPostDate));
+        } else if(Objects.equals(sort, "desc")){
+            dateComparator = Comparator.comparing((Post::getPostDate)).reversed();
+        } else {
+            throw new ConditionsNotMetException("Неверный метод сортировки. Допустимые значения: asc, desc");
+        }
+        return posts.values().stream().sorted(dateComparator).skip(from).limit(size).toList();
     }
 
     public Post find(Long postId) {

@@ -17,8 +17,10 @@ public class UserController {
     }
 
     @GetMapping
-    public Collection<User> findAll() {
-        return userService.findAll();
+    public Collection<User> findAll(@RequestParam(defaultValue = "10") Long size,
+                                    @RequestParam(defaultValue = "0") Long from,
+                                    @RequestParam(defaultValue = "desc") String sort) {
+        return userService.findAll(size, from, sort);
     }
 
     @GetMapping("/{userId}")
