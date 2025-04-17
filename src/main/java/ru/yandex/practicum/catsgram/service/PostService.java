@@ -6,16 +6,32 @@ import ru.yandex.practicum.catsgram.exception.NotFoundException;
 import ru.yandex.practicum.catsgram.model.Post;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class PostService {
     private final Map<Long, Post> posts = new HashMap<>();
 
-    public Collection<Post> findAll() {
+    public Collection<Post> findAll( int size,  int from, String sort) {
+        if(sort == "acd"){
+            Comparator<Post> dateComporator = Comparator.comparing((Post::getPostDate));
+        } else if(sort == "desc"){
+            Comparator<Post> dateComporator = Comparator.comparing((Post::getPostDate)).reversed();
+        } else {
+            throw new ConditionsNotMetException("Неверный метод сортировки");
+        }
+
+
+
+
         return posts.values();
+    }
+
+    public Post find(Long postId) {
+        if(!posts.containsKey(postId)) {
+            throw new NotFoundException("Пост с id = " + postId + " не найден");
+        }
+        return posts.get(postId);
     }
 
     public Post create(Post post) {
