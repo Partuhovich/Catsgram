@@ -3,6 +3,7 @@ package ru.yandex.practicum.catsgram.service;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.catsgram.exception.ConditionsNotMetException;
 import ru.yandex.practicum.catsgram.exception.NotFoundException;
+import ru.yandex.practicum.catsgram.exception.ParameterNotValidException;
 import ru.yandex.practicum.catsgram.model.Post;
 
 import java.time.Instant;
@@ -14,7 +15,10 @@ public class PostService {
 
     public Collection<Post> findAll( Long size,  Long from, String sort) {
         if(!(size > 0)) {
-            throw new ConditionsNotMetException("Размер должен быть больше нуля");
+            throw new ParameterNotValidException("size", "\"Некорректный размер выборки. Размер должен быть больше нуля\"");
+        }
+        if(from<0) {
+            throw new ParameterNotValidException("from", "\"Некорректная точко отсчета. Точка отсчета не может быть меньше нуля\"");
         }
         Comparator<Post> dateComparator;
 
@@ -23,7 +27,7 @@ public class PostService {
         } else if(Objects.equals(sort, "desc")){
             dateComparator = Comparator.comparing((Post::getPostDate)).reversed();
         } else {
-            throw new ConditionsNotMetException("Неверный метод сортировки. Допустимые значения: asc, desc");
+            throw new ParameterNotValidException("sort", "Неверный метод сортировки. Допустимые значения: asc, desc");
         }
         return posts.values().stream().sorted(dateComparator).skip(from).limit(size).toList();
     }
